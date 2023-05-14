@@ -1,0 +1,54 @@
+VERSION 1.0 CLASS
+BEGIN
+  MultiUse = -1  'True
+END
+Attribute VB_Name = "Feuil1"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = True
+Sub GetWhatsAppProfileImages()
+    Dim IE As Object
+    Dim cell As Range
+    Dim imgSrc As String
+    Dim img As New MSXML2.XMLHTTP60
+    Dim f As Integer
+    Dim folderPath As String
+    
+    Set IE = CreateObject("InternetExplorer.Application")
+    IE.Visible = False
+    folderPath = Environ("USERPROFILE") & "\Documents\WhatsAppProfileImages\"
+    
+    If Len(Dir(folderPath, vbDirectory)) = 0 Then
+        MkDir folderPath
+    End If
+    
+    For Each cell In Range("A2:A10")
+        ' Récupérer le numéro de téléphone de la personne
+
+    ' Construire l'URL du lien WhatsApp
+        IE.Navigate "https://api.whatsapp.com/send?phone=" & cell.Value
+        
+            ' Créer une instance de l'objet Internet Explorer
+            '    Set IE = CreateObject("InternetExplorer.Application")
+
+
+        Do While IE.Busy Or IE.readyState <> 4: DoEvents: Loop
+        imgSrc = IE.Document.getElementsByTagName("img")(0).src
+        img.Open "GET", imgSrc, False
+        img.send
+        f = FreeFile()
+      ' Récupérer l'élément de la photo de profil
+      ' Enregistrer la photo de profil dans un fichier
+
+        Open folderPath & cell.Value & "2.jpg" For Binary Access Write As #f
+        Put #f, , img.responseBody
+        Close #f
+    Next cell
+    
+    IE.Quit
+    Set IE = Nothing      ' Fermer l'objet Internet Explorer
+
+    Set img = Nothing
+    
+End Sub
